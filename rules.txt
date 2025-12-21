@@ -1,0 +1,5 @@
+ON Power1#Boot do backlog Time 1669593600; Var1 1; Var2 5; Power2 OFF; Power1 ON ENDON ON Time#Minute DO backlog Var1; Var2 ENDON
+
+ON Var1#State>10079 DO Var1 10079 ENDON ON Time#Minute|%var1% DO backlog WebQuery http://www.google.com GET ENDON ON WebQuery#Data$!Done DO backlog Sub2 1 ENDON
+
+ON Var2#State==0 DO backlog Mult1 2; Power1 OFF; Delay 300; Power1 ON; Var2 5 ENDON ON WebQuery#Data=Done DO backlog Var1 1; Var2 5 ENDON
