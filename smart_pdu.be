@@ -1,10 +1,12 @@
 # Watchdog probing loop in seconds:
-LOOP_PERIOD = 4
+LOOP_PERIOD = 20
 MIN_SCORE = 0
 MAX_SCORE = 10
 
+RESTART_DELAY = 40000
 
-devices = [{'ip': '192.168.1.1', 'name': 'router', 'relay': 2, 'score': 10}, {'ip': '192.168.1.231', 'name': 'vpn-gw', 'relay': 3, 'score': 10}]
+
+devices = [{'ip': '192.168.1.1', 'name': 'router', 'relay': 2, 'score': 10}, {'ip': '192.168.100.1', 'name': 'starlink', 'relay': 3, 'score': 10}, {'ip': '192.168.3.1', 'name': 'vpn-node', 'relay': 4, 'score': 10}, {'ip': '192.168.1.64', 'name': 'hassio', 'relay': 5, 'score': 10}, {'ip': '192.168.1.232', 'name': 'nos-lte', 'relay': 6, 'score': 10}]
 
 
 def rule_ping(device, outcome)
@@ -39,9 +41,9 @@ def check_instances()
             # 1. Set score back to maximum to avoid looping:
             device['score'] = MAX_SCORE
 
-            # 2. TODO add restart action here:
+            # 2. Restart action:
             tasmota.set_timer(0, /-> tasmota.cmd("Power" + str(device['relay']) + " 1"))
-            tasmota.set_timer(1500, /-> tasmota.cmd("Power" + str(device['relay']) + " 0"))
+            tasmota.set_timer(RESTART_DELAY, /-> tasmota.cmd("Power" + str(device['relay']) + " 0"))
         end
 
         # Initiate ping for the devices:
