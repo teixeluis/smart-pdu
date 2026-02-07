@@ -1,12 +1,10 @@
 # Watchdog probing loop in seconds:
 LOOP_PERIOD = 20
-MIN_SCORE = 0
-MAX_SCORE = 10
 
 RESTART_DELAY = 40000
 
 
-devices = [{'ip': '192.168.1.1', 'name': 'router', 'relay': 2, 'score': 10}, {'ip': '192.168.100.1', 'name': 'starlink', 'relay': 3, 'score': 10}, {'ip': '192.168.3.1', 'name': 'vpn-node', 'relay': 4, 'score': 10}, {'ip': '192.168.1.64', 'name': 'hassio', 'relay': 5, 'score': 10}, {'ip': '192.168.1.232', 'name': 'nos-lte', 'relay': 6, 'score': 10}]
+devices = [{'ip': '192.168.1.1', 'name': 'router', 'relay': 2, 'score': 15, 'min_score': 0, 'max_score': 15}, {'ip': '192.168.100.1', 'name': 'starlink', 'relay': 3, 'score': 150, 'min_score': 0, 'max_score': 150}, {'ip': '192.168.3.1', 'name': 'nos-lte', 'relay': 6, 'score': 15, 'min_score': 0, 'max_score': 15}, {'ip': '192.168.1.64', 'name': 'hassio', 'relay': 5, 'score': 15, 'min_score': 0, 'max_score': 15}, {'ip': '192.168.1.232', 'name': 'vpn-node', 'relay': 4, 'score': 15, 'min_score': 0, 'max_score': 15}]
 
 
 def rule_ping(device, outcome)
@@ -14,11 +12,11 @@ def rule_ping(device, outcome)
 
     if outcome == 0
         print("rule_ping: ping for device " + device['name'] + " failed. Decreasing score.")
-        if device['score'] > MIN_SCORE
+        if device['score'] > device['min_score']
             device['score'] -= 1
         end
     else
-        if device['score'] < MAX_SCORE
+        if device['score'] < device['max_score']
             device['score'] += 1
         end
     end
@@ -35,11 +33,11 @@ end
 def check_instances()
     for device: devices
         # Check if the score for this device is already poor:
-        if device['score'] <= MIN_SCORE
+        if device['score'] <= device['min_score']
             print("check_instances: score for device " + device['name'] + " is below minimum (score = " + str(device['score']) + "). Will need to take action.")
 
             # 1. Set score back to maximum to avoid looping:
-            device['score'] = MAX_SCORE
+            device['score'] = device['max_score']
 
             # 2. Restart action:
             tasmota.set_timer(0, /-> tasmota.cmd("Power" + str(device['relay']) + " 1"))
